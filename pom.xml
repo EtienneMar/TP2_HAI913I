@@ -1,0 +1,56 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>hai913i.tp.ast</groupId>
+  <artifactId>TP-AST-PARTIE-2</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>HAI913I_TP_AST_PARTIE2</name>
+    <dependencies>
+    <!-- Dépendence eclipse JDT -->
+    <dependency>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>org.eclipse.jdt.core</artifactId>
+        <version>3.9.1.v20130905-0837</version>
+    </dependency>
+    <dependency>
+        <groupId>org.eclipse.core</groupId>
+        <artifactId>runtime</artifactId>
+        <version>3.9.100-v20131218-1515</version>
+    </dependency>
+    <dependency>
+        <groupId>org.eclipse.birt.runtime</groupId>
+        <artifactId>org.eclipse.core.resources</artifactId>
+        <version>3.8.101.v20130717-0806</version>
+    </dependency>
+    <!-- Dépendence Apache Common IO peut-être à supprimer -->
+    <dependency>
+  <groupId>commons-io</groupId>
+  <artifactId>commons-io</artifactId>
+  <version>2.13.0</version>
+</dependency>
+	<dependency>
+		<groupId>org.junit.jupiter</groupId>
+		<artifactId>junit-jupiter-engine</artifactId>
+		<version>5.5.2</version>
+		<scope>test</scope>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.mxgraph/jgraphx -->
+<!-- https://mvnrepository.com/artifact/com.mxgraph/jgraphx -->
+<dependency>
+    <groupId>com.github.vlsi.mxgraph</groupId>
+    <artifactId>jgraphx</artifactId>
+    <version>4.2.2</version>
+</dependency>
+</dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
