@@ -11,10 +11,10 @@ public class MyViewParameter {
 		// TODO Auto-generated constructor stub
 	}
 
-	private static final int size_Font = 18;
+	private static final int size_Font = 14;
 	private static final String style_Font = "Arial";
 	private static final Font my_Font_Style = new Font(style_Font, Font.PLAIN, size_Font);
-	private static final Font my_Font_Style_Title = new Font(style_Font, Font.PLAIN, 24);
+	private static final Font my_Font_Style_Title = new Font(style_Font, Font.PLAIN, 18);
 
 	
     
@@ -28,8 +28,8 @@ public class MyViewParameter {
     int hauteurEcran = tailleEcran.height;
 
     // Calculez les dimensions de la fenêtre en fonction des pourcentages
-    private int largeurFenetre = (int) (largeurEcran * pourcentageLargeur);
-    private int hauteurFenetre = (int) (hauteurEcran * pourcentageHauteur);
+    private int largeurFenetre = largeurEcran;
+    private int hauteurFenetre = hauteurEcran;
 
     // Centrez la fenêtre à l'écran
     private int xFenetre = (largeurEcran - largeurFenetre) / 2;

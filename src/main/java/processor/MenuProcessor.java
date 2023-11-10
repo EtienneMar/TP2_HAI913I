@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+
 import ui.controller.Resultat;
 
 public class MenuProcessor {
@@ -88,4 +89,5 @@ public class MenuProcessor {
 		});
 		return results;
 	};
+	
 }

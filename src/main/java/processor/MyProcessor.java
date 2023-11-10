@@ -375,5 +375,5 @@ public class MyProcessor extends Processor<EclipseJDTParser> {
         resultatFinal.addAllResultat(firstNElements);
         return resultatFinal;
     }
-
+    
 }

@@ -16,8 +16,8 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
-
 import ui.paramater.MyViewParameter;
+
 public class CheckBoxPanelTemplate {
     private MyViewParameter myParam = new MyViewParameter();
     private ButtonGroup buttonGroup = new ButtonGroup();
@@ -57,7 +57,7 @@ public class CheckBoxPanelTemplate {
                     	
                     	   keyLabel = new JLabel("      X  : ");
             	           keyLabel.setBounds(myParam.getxBouton() + myParam.getLargeurBouton(),myParam.getyBouton() * 4 + y, myParam.getLargeurBouton()/6, myParam.getHauteurBouton()/3);
-            	           keyLabel.setFont(new Font("Arial", Font.PLAIN, 16)); // Police personnalisée
+            	           keyLabel.setFont(MyViewParameter.getMyFontStyle()); // Police personnalisée
             	        // Calcul de la position x pour valueLabel en fonction de keyLabel
             	          int valueLabelX = keyLabel.getX() + keyLabel.getWidth();
                     	SpinnerModel value =  new SpinnerNumberModel(5, //initial value  
@@ -67,7 +67,7 @@ public class CheckBoxPanelTemplate {
                        
                     	spinner = new JSpinner(value);   
                     	spinner.setBounds(valueLabelX, myParam.getyBouton() * 4 + y, myParam.getLargeurBouton()/5, myParam.getHauteurBouton()/3);
-                    	spinner.setFont(new Font("Arial", Font.PLAIN, 16)); // Police personnalisée
+                    	spinner.setFont(MyViewParameter.getMyFontStyle()); // Police personnalisée
                     	spinner.setVisible(false);
                     	keyLabel.setVisible(false);
                     	panel.add(spinner);
@@ -77,7 +77,7 @@ public class CheckBoxPanelTemplate {
               
                     break;
             }
-            checkBox.setFont(new Font("Arial", Font.PLAIN, 16)); // Police personnalisée
+            checkBox.setFont(MyViewParameter.getMyFontStyle()); // Police personnalisée
             checkBox.setVisible(false);
             checkBoxList.add(checkBox);
             panel.add(checkBox);

@@ -73,12 +73,5 @@ public class BasicResultsPanel extends JPanel{
 
 
 	}
-	
-   	
-   	public void addAllListener(SelectProjectController myController) {
-
-   		  
-        btnTerminer.addActionListener(myController.buttonQuitListener);
-   	}
 
 }

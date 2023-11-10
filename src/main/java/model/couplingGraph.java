@@ -16,7 +16,7 @@ public class couplingGraph {
 	/**
 	 * Constructeur vide
 	 */
-	
+
 	public couplingGraph() {}
 
 	public Set<Vertex> getListVertex() {
@@ -46,9 +46,9 @@ public class couplingGraph {
 		this.listEdge = listEdge;
 	}
 
-	public Edge findExistingEdge(String string, String vertexEndName) {
+	public Edge findExistingEdge(String vertexStart, String vertexEndName) {
 		for (Edge edge : listEdge) {
-			if (edge.isBetweenVertices(string, vertexEndName)) {
+			if (edge.isBetweenVertices(vertexStart, vertexEndName)) {
 				return edge;
 			}
 		}
@@ -62,6 +62,15 @@ public class couplingGraph {
 			}
 		}
 		return null;
+	}
+
+	public Boolean isExistingVertex(String vertexName) {
+		for (Vertex vertex : listVertex) {
+			if (vertex.getName().equals(vertexName)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public Set<String> getListFileAnalyze() {
@@ -80,12 +89,21 @@ public class couplingGraph {
 		}
 		return listFileAnalyze;
 	}
-	
+
 
 	public boolean isFileHasToBeAnalyze (String packageName) {
 		return getListFileAnalyze().contains(packageName);
 	}
+
+	public float getMetricCouplageByName (String vertexStart, String vertexEnd) {
+		Edge edge = findExistingEdge(vertexStart, vertexEnd);
+		if (edge == null) {
+			return -1;
+		}else {
+			return edge.getCouplageMetric();
+		}
+	}
 }
 
-	
+
 

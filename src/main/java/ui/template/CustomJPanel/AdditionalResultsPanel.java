@@ -19,6 +19,7 @@ import ui.paramater.MyViewParameter;
 
 
 public class AdditionalResultsPanel extends JPanel {
+	
     private MyViewParameter myParam = new MyViewParameter();
     private JButton btnTerminer;
     private LabelMap labels = new LabelMap();
@@ -74,7 +75,6 @@ public class AdditionalResultsPanel extends JPanel {
 
             j = 0;
             res.getResultats().forEach((kk, vv) -> {
-                System.out.println(kk);
                 if (vv != 0) {
                     valueLabel = new JLabel(kk + " -> " + vv);
                 } else {
@@ -83,7 +83,7 @@ public class AdditionalResultsPanel extends JPanel {
 
                 valueLabel.setBounds(valueLabelX, keyLabel.getY() + j, myParam.getLargeurBouton(),
                         myParam.getHauteurBouton());
-                // valueLabel.setFont(MyViewParameter.getMyFontStyle());
+                valueLabel.setFont(MyViewParameter.getMyFontStyle());
 
                 contentPanel.add(valueLabel);
                 myY = valueLabel.getY() + 40;
@@ -98,7 +98,4 @@ public class AdditionalResultsPanel extends JPanel {
         contentPanel.setPreferredSize(new Dimension(width, height));
     }
 
-    public void addAllListener(SelectProjectController myController) {
-        btnTerminer.addActionListener(myController.buttonQuitListener);
-    }
 }

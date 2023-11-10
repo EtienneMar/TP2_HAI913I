@@ -14,19 +14,19 @@ import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
 
-import analyzerLogic.couplingAnalyze;
 import model.Edge;
 import model.Vertex;
 import parsers.EclipseJDTParser;
+import processor.CouplingAnalyze;
 
 public class GraphController {
 
 	public static EclipseJDTParser parserEclipse;
-	private static couplingAnalyze couplingGraphe; 
+	private static CouplingAnalyze couplingGraphe; 
 
 	public void GraphPanel(String path) throws IOException {
 
-		couplingGraphe = new couplingAnalyze(path);
+		couplingGraphe = new CouplingAnalyze(path);
 
 		SwingUtilities.invokeLater(() -> {
 			JFrame frame = new JFrame("AST Graph Viewer");

@@ -1,4 +1,4 @@
-package analyzerLogic;
+package processor;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,12 +17,12 @@ import visitor.ConstructorInvocationVisitor;
 import visitor.MethodDeclarationVisitor;
 import visitor.MethodInvocationVisitor;
 
-public class couplingAnalyze {
+public class CouplingAnalyze {
 
 	private static couplingGraph couplingGraphe = new couplingGraph();
 	private static EclipseJDTParser parserEclipse;
 
-	public couplingAnalyze(String path) throws NullPointerException, IOException {
+	public CouplingAnalyze(String path) throws NullPointerException, IOException {
 		launchAnalyze(path);
 
 	}
@@ -31,13 +31,9 @@ public class couplingAnalyze {
 		return couplingGraphe;
 	}
 
-
-
 	public  void setCouplingGraphe(couplingGraph couplingGraphe) {
-		couplingAnalyze.couplingGraphe = couplingGraphe;
+		CouplingAnalyze.couplingGraphe = couplingGraphe;
 	}
-
-
 
 	private static void launchAnalyze(String path) throws NullPointerException, IOException {
 
