@@ -1,8 +1,13 @@
 package processor;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -14,6 +19,7 @@ import model.Vertex;
 import model.couplingGraph;
 import parsers.EclipseJDTParser;
 import visitor.ConstructorInvocationVisitor;
+import visitor.ImportDeclarationVisitor;
 import visitor.MethodDeclarationVisitor;
 import visitor.MethodInvocationVisitor;
 
@@ -21,12 +27,12 @@ public class CouplingAnalyze {
 
 	private static couplingGraph couplingGraphe = new couplingGraph();
 	private static EclipseJDTParser parserEclipse;
+	private static Vertex vertexEnd; 
 
 	public CouplingAnalyze(String path) throws NullPointerException, IOException {
 		launchAnalyze(path);
-
 	}
-	
+
 	public couplingGraph getCouplingGraphe() {
 		return couplingGraphe;
 	}
@@ -35,67 +41,96 @@ public class CouplingAnalyze {
 		CouplingAnalyze.couplingGraphe = couplingGraphe;
 	}
 
-	private static void launchAnalyze(String path) throws NullPointerException, IOException {
+	private static void launchAnalyze(String path) throws FileNotFoundException, IOException {
 
+		
 		parserEclipse = new EclipseJDTParser(path);
-		List<File> javaFiles = parserEclipse.listJavaProjectFiles();
-		couplingGraphe.setListFileAnalyze(javaFiles);
-
-		for (File content : javaFiles) {
-			parserEclipse.configure();
-			CompilationUnit cu= parserEclipse.parse(content);
-
+		List<CompilationUnit> cus = parserEclipse.parseProject();
+		
+		
+		Set<String> fileToAnalyze = new HashSet<>();
+		for (CompilationUnit cu : cus) {
+			String packageName = extractPackageNameDotClassName(cu);
+			fileToAnalyze.add(packageName);
+		}
+		couplingGraphe.setListFileAnalyze(fileToAnalyze);
+		System.out.println(fileToAnalyze.toString());
+		
+		for (CompilationUnit cu : cus) {
 			//Récupérer le nom du package
 			String packageName = extractPackageNameDotClassName(cu);
 			Vertex vertexStart = getInformationAboutVertex(cu, packageName);
 
-			String vertexName = null;
-			Vertex vertexEnd = null;
-			//Récupére le nombre d'invocation de constructeur de classe extérieur dans une classe
-			ConstructorInvocationVisitor constructorInvocationVisitor = new ConstructorInvocationVisitor();
-			cu.accept(constructorInvocationVisitor);
-			for(ClassInstanceCreation classInstanceCreation : constructorInvocationVisitor.getMethods()){
+			ImportDeclarationVisitor importDeclarationVisitor = new ImportDeclarationVisitor(path);
+			cu.accept(importDeclarationVisitor);
+			HashMap<String, String> classImportMap = importDeclarationVisitor.getClassImportMap();
 
-				//Chercher qu'est ce que ça gère ? 
-				if(classInstanceCreation.resolveTypeBinding() == null && classInstanceCreation.getExpression() == null) {
-					vertexName = classInstanceCreation.getType().resolveBinding().getQualifiedName();
-					if(couplingGraphe.isFileHasToBeAnalyze(vertexName)) {
-						vertexEnd = getInformationAboutVertex(cu, vertexName);
-						addEdgeToTheGraphe(vertexStart, vertexEnd);
-					}
-				}else if (classInstanceCreation.getExpression() == null) {
+			visitConstrutor(cu, classImportMap, vertexStart);
+			visitMethodInvocation(cu, classImportMap, vertexStart);
 
-					vertexName = classInstanceCreation.resolveTypeBinding().getBinaryName();
-					if(couplingGraphe.isFileHasToBeAnalyze(vertexName)) {
-						vertexEnd = getInformationAboutVertex(cu, vertexName);
-						addEdgeToTheGraphe(vertexStart, vertexEnd);
-					}	
-				}
-			}
 
-			//Récupérer le nombre d'invocation de méthode de classe extérieur dans une classe
-			MethodInvocationVisitor methodInvocationVisitor = new MethodInvocationVisitor();
-			cu.accept(methodInvocationVisitor);
-			for(MethodInvocation methodInvocation : methodInvocationVisitor.getMethods()) {
-				// Expression explicite
-				if (methodInvocation.getExpression() != null) {
-					if (methodInvocation.getExpression().resolveTypeBinding() != null) {
-						vertexName = methodInvocation.getExpression().resolveTypeBinding().getTypeDeclaration().getQualifiedName();
-						if(couplingGraphe.isFileHasToBeAnalyze(vertexName)) {
-							vertexEnd = getInformationAboutVertex(cu, vertexName);
-							addEdgeToTheGraphe(vertexStart, vertexEnd);
-						}
-					}
-					//expression non explicite
-				} else if (methodInvocation.resolveMethodBinding() != null) {
-					vertexName = methodInvocation.resolveMethodBinding().getDeclaringClass().getTypeDeclaration().getQualifiedName();
-					if(couplingGraphe.isFileHasToBeAnalyze(vertexName)) {
-						vertexEnd = getInformationAboutVertex(cu, vertexName);
-						addEdgeToTheGraphe(vertexStart, vertexEnd);
-					}
-				}
+		}
+	}
+
+
+
+	private static void visitConstrutor(CompilationUnit cu, HashMap<String, String> classImportMap, Vertex vertexStart) {
+		ConstructorInvocationVisitor constructorInvocationVisitor = new ConstructorInvocationVisitor();
+		cu.accept(constructorInvocationVisitor);
+		for(ClassInstanceCreation classInstanceCreation : constructorInvocationVisitor.getMethods()){
+			if (classInstanceCreation.getType().isPrimitiveType() || classInstanceCreation.getType().isArrayType()) {
+				continue;
+			}else {
+				String vertexName = classInstanceCreation.getType().resolveBinding().getName();
+				analyze(vertexName, cu, vertexStart, classImportMap);
 			}
 		}
+	}
+
+	private static void visitMethodInvocation(CompilationUnit cu, HashMap<String, String> classImportMap, Vertex vertexStart) {
+		//Récupérer le nombre d'invocation de méthode de classe extérieur dans une classe
+		MethodInvocationVisitor methodInvocationVisitor = new MethodInvocationVisitor();
+		cu.accept(methodInvocationVisitor);
+		Iterator<MethodInvocation> iterator = methodInvocationVisitor.getMethods().iterator();
+		//List<MethodInvocation> allMethodInvocations = new ArrayList<>(methodInvocationVisitor.getMethods());
+
+
+		while (iterator.hasNext()) {
+			MethodInvocation methodInvocation = iterator.next();
+            String vertexName = resolveVertexNameMethodInvocation(methodInvocation);
+            if (vertexName != null && analyze(vertexName, cu, vertexStart, classImportMap)) {
+                iterator.remove();
+            }
+		}
+		//System.out.println("Qui reste t'il ? : " );
+		//allMethodInvocations.forEach(m -> System.out.println(m.toString()));
+	}
+
+	private static boolean analyze(String vertexName, CompilationUnit cu, Vertex vertexStart, HashMap<String, String> classImportMap) {
+		String correspondingClass = classImportMap.get(vertexName.toUpperCase());
+		if(correspondingClass != null && couplingGraphe.isFileHasToBeAnalyze(correspondingClass)) {
+			vertexEnd = getInformationAboutVertex(cu, correspondingClass);
+			addEdgeToTheGraphe(vertexStart, vertexEnd);
+			return true;
+		}
+		return false;
+	}
+
+	private static String resolveVertexNameMethodInvocation(MethodInvocation methodInvocation) {
+
+		if (methodInvocation.getExpression() != null && methodInvocation.getExpression().resolveTypeBinding() != null) {
+			return methodInvocation.getExpression().resolveTypeBinding().getName();
+		}
+		else if (methodInvocation.resolveMethodBinding() != null) {
+			return methodInvocation.resolveMethodBinding().getDeclaringClass().getTypeDeclaration().getQualifiedName();
+		}
+		else if (methodInvocation.getExpression() != null && methodInvocation.getExpression().toString() != null) {
+			return methodInvocation.getExpression().toString();
+		}
+		else if (methodInvocation.getName() != null) {
+			return methodInvocation.getName().toString();
+		}
+		return null;
 	}
 
 	public static String extractPackageNameDotClassName(CompilationUnit cu) {

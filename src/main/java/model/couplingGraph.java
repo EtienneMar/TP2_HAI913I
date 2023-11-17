@@ -77,19 +77,9 @@ public class couplingGraph {
 		return listFileAnalyze;
 	}
 
-	public void setListFileAnalyze(List<File> listFileAnalyze) {
-		this.listFileAnalyze = addAllFileAnalyze(listFileAnalyze);
+	public void setListFileAnalyze(Set<String> listFileAnalyze) {
+		this.listFileAnalyze = listFileAnalyze;
 	}
-
-	public Set<String> addAllFileAnalyze (List<File> javaFiles) {
-		Set<String> listFileAnalyze = new HashSet<>();
-		for(File file : javaFiles) {
-			String pathFileToAnalyze = file.getParentFile().getName() +"."+ file.getName().replaceAll("(?i).java", "");
-			listFileAnalyze.add(pathFileToAnalyze);
-		}
-		return listFileAnalyze;
-	}
-
 
 	public boolean isFileHasToBeAnalyze (String packageName) {
 		return getListFileAnalyze().contains(packageName);

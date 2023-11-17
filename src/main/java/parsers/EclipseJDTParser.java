@@ -46,12 +46,11 @@ public class EclipseJDTParser extends Parser<ASTParser> {
 	 * 		  contiennent des erreurs de résolution de liens
 	 * @param encoding Le type d'encodage du parser (par exemple, "UTF8", "ACSSI", etc.).
 	 */
-
-
-	public void defaultSetterParser(int level, int kind, boolean resolveBindings, boolean bindingsRecovery,
-			String encoding) {
+	
+	public void fileSetterParser(int level, int kind, boolean resolveBindings, boolean bindingsRecovery,
+			String encoding, String filename) {
 		parserType = ASTParser.newParser(level);
-		parserType.setUnitName("");
+		parserType.setUnitName(filename);
 		parserType.setKind(kind);
 		parserType.setCompilerOptions(JavaCore.getOptions());
 		parserType.setEnvironment(new String[] { getJrePath() },
@@ -64,13 +63,14 @@ public class EclipseJDTParser extends Parser<ASTParser> {
 
 	/**
 	 * Implémentation de la méthode configure de la classe mère parser pour configure EclipseJDTParser
+	 * @param string 
 	 * @see Parser#configure() 
 	 * Elle appelle la configuration par défaut de l'AST Parser défini dans la méthode defaultSetterParser.
 	 */
 
 	@Override
-	public void configure() {
-		defaultSetterParser(AST.JLS4, ASTParser.K_COMPILATION_UNIT, true, true, "UTF-8");
+	public void configure(String filename) {
+		fileSetterParser(AST.JLS14, ASTParser.K_COMPILATION_UNIT, true, true, "UTF-8", filename);
 	}
 
 
@@ -82,6 +82,7 @@ public class EclipseJDTParser extends Parser<ASTParser> {
 	 * @throws IOException Si une erreur d'entrée/sortie se produit lors de la lecture du fichier.
 	 */
 	public CompilationUnit parse(File file) throws IOException {
+		configure(file.getName());
 		parserType.setSource(FileUtils.readFileToString(file, Charset.defaultCharset()).toCharArray());
 		return (CompilationUnit) parserType.createAST(null);
 	}
@@ -124,6 +125,10 @@ public class EclipseJDTParser extends Parser<ASTParser> {
 	public boolean isValidJavaFile(File file) {
 	    return file != null && file.isFile() && file.getName().endsWith(".java");
 	}
+
+
+	@Override
+	public void configure() {return;}
 
 
 }

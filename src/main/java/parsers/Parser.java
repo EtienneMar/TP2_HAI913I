@@ -64,6 +64,7 @@ public abstract class Parser<T> {
 				this.projectPath = projectPath+sourcePathForJava;
 			}else {throw new FileNotFoundException("File not found, le dossier ne contient pas de fichier source");}
 		}
+		System.out.println(projectPath);
 	}
 
 	/** 
@@ -152,6 +153,15 @@ public abstract class Parser<T> {
 	 * Cette méthode doit être implémentée par les sous-classes pour définir
 	 * la configuration spécifique à chaque type de Parser utilisé. 
 	 */
-	public abstract void configure(); 
+	public abstract void configure();
+
+
+	/**
+	 * Implémentation de la méthode configure de la classe mère parser pour configure EclipseJDTParser
+	 * @param string 
+	 * @see Parser#configure() 
+	 * Elle appelle la configuration par défaut de l'AST Parser défini dans la méthode defaultSetterParser.
+	 */
+	public abstract void configure(String string); 
 
 }

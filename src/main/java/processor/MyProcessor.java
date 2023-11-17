@@ -376,4 +376,8 @@ public class MyProcessor extends Processor<EclipseJDTParser> {
         return resultatFinal;
     }
     
+    public void dendogramme() {
+    	
+    }
+    
 }
