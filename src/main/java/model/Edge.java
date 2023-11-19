@@ -55,10 +55,11 @@ public class Edge {
 	           (VertexA.getName().equals(vertexEndName) && VertexB.getName().equals(vertexStartName));
 	}
 
+	
 	@Override
 	public String toString() {
 		return "Vertex A : " + VertexA.getName() + ", Vertex B: " + VertexB.getName() + ", nbrApp="
-				+ nombreAppelEntreLesDeuxClasses + "metrique : " + getCouplageMetric();
+				+ nombreAppelEntreLesDeuxClasses + " metrique : " + getCouplageMetric();
 				
 	}
 	

@@ -1,6 +1,6 @@
 package model;
 
-public class Vertex {
+public class Vertex extends DendoNode {
 
 	/**
 	 * Attribut
@@ -17,15 +17,22 @@ public class Vertex {
 	 * Constructeur 
 	 */
 	
-	
-	
 	public Vertex(String name) {
+		super(name);
 		setName(name);
 	}
 
 	public Vertex(String name, int numberOfConstructorInClass, int numberOfMethodInClass) {
+		super(name);
 		setName(name);
 		setNumberOfConstructorInClass(numberOfConstructorInClass);
+		setNumberOfMethodInClass(numberOfMethodInClass);
+	}
+	
+	public Vertex(String name, int numberOfMethodInClass) {
+		super(name);
+		setName(name);
+		setNumberOfConstructorInClass(0);
 		setNumberOfMethodInClass(numberOfMethodInClass);
 	}
 

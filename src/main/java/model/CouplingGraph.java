@@ -1,23 +1,24 @@
 package model;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class couplingGraph {
+public class CouplingGraph {
 
+	 HashMap<String, String> getClassPackageMap;
 	/**
 	 * Attribut
 	 */
-	private Set<String> listFileAnalyze = new HashSet<>();
 	private Set<Vertex> listVertex = new HashSet<>();
 	private Set<Edge> listEdge = new HashSet<>();
 	/**
 	 * Constructeur vide
 	 */
 
-	public couplingGraph() {}
+	public CouplingGraph() {}
 
 	public Set<Vertex> getListVertex() {
 		return listVertex;
@@ -73,16 +74,13 @@ public class couplingGraph {
 		return false;
 	}
 
-	public Set<String> getListFileAnalyze() {
+	public Set<String> addAllFileAnalyze (List<File> javaFiles) {
+		Set<String> listFileAnalyze = new HashSet<>();
+		for(File file : javaFiles) {
+			String pathFileToAnalyze = file.getParentFile().getName() +"."+ file.getName().replaceAll("(?i).java", "");
+			listFileAnalyze.add(pathFileToAnalyze);
+		}
 		return listFileAnalyze;
-	}
-
-	public void setListFileAnalyze(Set<String> listFileAnalyze) {
-		this.listFileAnalyze = listFileAnalyze;
-	}
-
-	public boolean isFileHasToBeAnalyze (String packageName) {
-		return getListFileAnalyze().contains(packageName);
 	}
 
 	public float getMetricCouplageByName (String vertexStart, String vertexEnd) {
@@ -90,6 +88,7 @@ public class couplingGraph {
 		if (edge == null) {
 			return -1;
 		}else {
+			System.out.println(edge.getCouplageMetric());
 			return edge.getCouplageMetric();
 		}
 	}

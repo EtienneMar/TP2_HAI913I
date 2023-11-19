@@ -23,6 +23,8 @@ public class MainPanel extends JPanel{
 	private JRadioButton rdbtnAnalyse_2;
 	private JRadioButton rdbtnPrintGraph;
 	private JRadioButton rdbtnPrintMetric;
+	private JRadioButton rdbtnPrintGraphSpoon;
+	private JRadioButton rdbtnPrintMetricSpoon;
 	private  JButton btnValider;
 	
 	public MainPanel( JFrame frame) {
@@ -55,17 +57,29 @@ public class MainPanel extends JPanel{
         this.add(rdbtnAnalyse_2);
         buttonGroup.add(rdbtnAnalyse_2); // Ajoutez le bouton radio au groupe
         
-        rdbtnPrintGraph = new JRadioButton("Graphe couplage");
+        rdbtnPrintGraph = new JRadioButton("Graphe couplage JDT");
         rdbtnPrintGraph.setBounds(myParam.getxBouton()+myParam.getLargeurBouton()*2, myParam.getyBouton()*3, myParam.getLargeurBouton(), myParam.getHauteurBouton());
         rdbtnPrintGraph.setFont(MyViewParameter.getMyFontStyleTitle());
         this.add(rdbtnPrintGraph);
         buttonGroup.add(rdbtnPrintGraph); // Ajoutez le bouton radio au groupe
         
-        rdbtnPrintMetric = new JRadioButton("Metrique couplage");
+        rdbtnPrintMetric = new JRadioButton("Metrique couplage JDT");
         rdbtnPrintMetric.setBounds(myParam.getxBouton()+myParam.getLargeurBouton()*2, myParam.getyBouton()*4, myParam.getLargeurBouton(), myParam.getHauteurBouton());
         rdbtnPrintMetric.setFont(MyViewParameter.getMyFontStyleTitle());
         this.add(rdbtnPrintMetric);
         buttonGroup.add(rdbtnPrintMetric); // Ajoutez le bouton radio au groupe
+        
+        rdbtnPrintGraphSpoon = new JRadioButton("Graphe couplage Spoon");
+        rdbtnPrintGraphSpoon.setBounds(myParam.getxBouton()+myParam.getLargeurBouton()*2, myParam.getyBouton()*5, myParam.getLargeurBouton(), myParam.getHauteurBouton());
+        rdbtnPrintGraphSpoon.setFont(MyViewParameter.getMyFontStyleTitle());
+        this.add(rdbtnPrintGraphSpoon);
+        buttonGroup.add(rdbtnPrintGraphSpoon); // Ajoutez le bouton radio au groupe
+        
+        rdbtnPrintMetricSpoon = new JRadioButton("Metrique couplage Spoon");
+        rdbtnPrintMetricSpoon.setBounds(myParam.getxBouton()+myParam.getLargeurBouton()*2, myParam.getyBouton()*6, myParam.getLargeurBouton(), myParam.getHauteurBouton());
+        rdbtnPrintMetricSpoon.setFont(MyViewParameter.getMyFontStyleTitle());
+        this.add(rdbtnPrintMetricSpoon);
+        buttonGroup.add(rdbtnPrintMetricSpoon); // Ajoutez le bouton radio au groupe
         
         btnValider = new JButton("Lancer l'analyse");
         btnValider.setBounds(myParam.getLargeurFenetre()-myParam.getxBouton()-myParam.getLargeurBouton(), myParam.getyBouton(), myParam.getLargeurBouton(), myParam.getHauteurBouton());
@@ -85,17 +99,27 @@ public class MainPanel extends JPanel{
         rdbtnAnalyse_2.addActionListener(myController.radioListener);
         rdbtnPrintGraph.addActionListener(myController.radioListener);
         rdbtnPrintMetric.addActionListener(myController.radioListener);
-        
+        rdbtnPrintGraphSpoon.addActionListener(myController.radioListener);
+        rdbtnPrintMetricSpoon.addActionListener(myController.radioListener);
 	}
 
 
-	public boolean isRdbtnGraphSelected() {
+	public boolean isRdbtnGraphSelectedJDT() {
 		return rdbtnPrintGraph.isSelected();
 	}
 
 
-	public boolean isRdbtnMetricSelected() {
+	public boolean isRdbtnMetricSelectedJDT() {
 		return rdbtnPrintMetric.isSelected();
+	}
+	
+	public boolean isRdbtnGraphSelectedSpoon() {
+		return rdbtnPrintGraphSpoon.isSelected();
+	}
+
+
+	public boolean isRdbtnMetricSelectedSpoon() {
+		return rdbtnPrintMetricSpoon.isSelected();
 	}
 
 }

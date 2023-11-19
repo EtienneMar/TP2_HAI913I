@@ -1,6 +1,5 @@
 package processor;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
@@ -16,67 +15,69 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import model.Edge;
 import model.Vertex;
-import model.couplingGraph;
+import model.CouplingGraph;
 import parsers.EclipseJDTParser;
 import visitor.ConstructorInvocationVisitor;
 import visitor.ImportDeclarationVisitor;
 import visitor.MethodDeclarationVisitor;
 import visitor.MethodInvocationVisitor;
 
-public class CouplingAnalyze {
+public class CouplingAnalyzeJDT {
 
-	private static couplingGraph couplingGraphe = new couplingGraph();
+	private static CouplingGraph couplingGraphe = new CouplingGraph();
 	private static EclipseJDTParser parserEclipse;
 	private static Vertex vertexEnd; 
 
-	public CouplingAnalyze(String path) throws NullPointerException, IOException {
+	public CouplingAnalyzeJDT(String path) throws NullPointerException, IOException {
 		launchAnalyze(path);
 	}
 
-	public couplingGraph getCouplingGraphe() {
+	public CouplingGraph getCouplingGraphe() {
 		return couplingGraphe;
 	}
 
-	public  void setCouplingGraphe(couplingGraph couplingGraphe) {
-		CouplingAnalyze.couplingGraphe = couplingGraphe;
+	public  void setCouplingGraphe(CouplingGraph couplingGraphe) {
+		CouplingAnalyzeJDT.couplingGraphe = couplingGraphe;
 	}
 
 	private static void launchAnalyze(String path) throws FileNotFoundException, IOException {
 
-		
 		parserEclipse = new EclipseJDTParser(path);
 		List<CompilationUnit> cus = parserEclipse.parseProject();
 		
-		
-		Set<String> fileToAnalyze = new HashSet<>();
+		Set<String> listJavaFile = new HashSet<>();
 		for (CompilationUnit cu : cus) {
-			String packageName = extractPackageNameDotClassName(cu);
-			fileToAnalyze.add(packageName);
+			String packageDotClassName = extractPackageNameDotClassName(cu);
+			if(packageDotClassName == null) {continue;}
+			listJavaFile.add(packageDotClassName);
 		}
-		couplingGraphe.setListFileAnalyze(fileToAnalyze);
-		System.out.println(fileToAnalyze.toString());
+		
+		ImportDeclarationVisitor importDeclarationVisitor = new ImportDeclarationVisitor(path, listJavaFile);
+		//System.out.println(couplingGraphe.getListFileAnalyze());
 		
 		for (CompilationUnit cu : cus) {
 			//Récupérer le nom du package
 			String packageName = extractPackageNameDotClassName(cu);
+			if(packageName == null) {continue;}
 			Vertex vertexStart = getInformationAboutVertex(cu, packageName);
-
-			ImportDeclarationVisitor importDeclarationVisitor = new ImportDeclarationVisitor(path);
+			
+			
 			cu.accept(importDeclarationVisitor);
-			HashMap<String, String> classImportMap = importDeclarationVisitor.getClassImportMap();
-
-			visitConstrutor(cu, classImportMap, vertexStart);
-			visitMethodInvocation(cu, classImportMap, vertexStart);
-
-
+			//System.out.println(importDeclarationVisitor.getClassImportMap());
+			HashMap<String, String> classMap = importDeclarationVisitor.getClassImportMap();
+			ConstructorInvocationVisitor constructorInvocationVisitor = new ConstructorInvocationVisitor();
+			cu.accept(constructorInvocationVisitor);
+			//System.out.println(packageName +" : " + constructorInvocationVisitor.getMethods().size());
+			//System.out.println(classMap);
+			visitConstrutor(cu, classMap, vertexStart);
+			visitMethodInvocation(cu, classMap, vertexStart);
 		}
 	}
-
-
 
 	private static void visitConstrutor(CompilationUnit cu, HashMap<String, String> classImportMap, Vertex vertexStart) {
 		ConstructorInvocationVisitor constructorInvocationVisitor = new ConstructorInvocationVisitor();
 		cu.accept(constructorInvocationVisitor);
+		//System.out.println(constructorInvocationVisitor.getMethods().isEmpty());
 		for(ClassInstanceCreation classInstanceCreation : constructorInvocationVisitor.getMethods()){
 			if (classInstanceCreation.getType().isPrimitiveType() || classInstanceCreation.getType().isArrayType()) {
 				continue;
@@ -97,24 +98,26 @@ public class CouplingAnalyze {
 
 		while (iterator.hasNext()) {
 			MethodInvocation methodInvocation = iterator.next();
-            String vertexName = resolveVertexNameMethodInvocation(methodInvocation);
-            if (vertexName != null && analyze(vertexName, cu, vertexStart, classImportMap)) {
-                iterator.remove();
-            }
+			String vertexName = resolveVertexNameMethodInvocation(methodInvocation);
+			if (vertexName != null && analyze(vertexName, cu, vertexStart, classImportMap)) {
+				iterator.remove();
+			}
 		}
 		//System.out.println("Qui reste t'il ? : " );
 		//allMethodInvocations.forEach(m -> System.out.println(m.toString()));
 	}
 
-	private static boolean analyze(String vertexName, CompilationUnit cu, Vertex vertexStart, HashMap<String, String> classImportMap) {
-		String correspondingClass = classImportMap.get(vertexName.toUpperCase());
-		if(correspondingClass != null && couplingGraphe.isFileHasToBeAnalyze(correspondingClass)) {
+	private static boolean analyze(String vertexName, CompilationUnit cu, Vertex vertexStart, HashMap<String, String> classMap) {
+		String vertexNameCapitalized = vertexName.toUpperCase();
+		String correspondingClass = classMap.get(vertexNameCapitalized);
+		if(correspondingClass != null) {
 			vertexEnd = getInformationAboutVertex(cu, correspondingClass);
 			addEdgeToTheGraphe(vertexStart, vertexEnd);
 			return true;
 		}
 		return false;
 	}
+
 
 	private static String resolveVertexNameMethodInvocation(MethodInvocation methodInvocation) {
 
@@ -134,16 +137,26 @@ public class CouplingAnalyze {
 	}
 
 	public static String extractPackageNameDotClassName(CompilationUnit cu) {
-		String packageName = cu.getPackage().getName().getFullyQualifiedName();
-
+		String packageDotClassName = extractPackageName(cu);
+		if(packageDotClassName == null) {return null;}
+		String className = extractClassName(cu);
+		if(className == null) {return null;}
+		packageDotClassName += "." + extractClassName(cu);
+		return packageDotClassName;
+	}
+	
+	public static String extractPackageName(CompilationUnit cu) {
+		return cu.getPackage().getName().getFullyQualifiedName();
+	}
+	
+	public static String extractClassName(CompilationUnit cu) {
 		for (Object type : cu.types()) {
 			if (type instanceof TypeDeclaration) {
 				TypeDeclaration typeDeclaration = (TypeDeclaration) type;
-				packageName += "." + typeDeclaration.getName().getFullyQualifiedName();
+				return typeDeclaration.getName().getFullyQualifiedName();
 			}
 		}
-
-		return packageName;
+		return null;
 	}
 
 	public static Vertex getInformationAboutVertex(CompilationUnit cu, String packageName) {

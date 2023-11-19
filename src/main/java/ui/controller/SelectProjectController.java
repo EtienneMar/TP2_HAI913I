@@ -15,8 +15,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import model.couplingGraph;
-import processor.CouplingAnalyze;
+import model.CouplingGraph;
+import processor.CouplingAnalyzeJDT;
 import processor.MenuProcessor;
 import ui.template.CheckBoxPanelTemplate;
 import ui.template.FolderChooserTemplate;
@@ -118,10 +118,10 @@ public class SelectProjectController  {
 					cardLayout.show(cardPanel, "Panel3"); // Affichez  le panel2
 
 
-				} else if(menuPanel.isRdbtnGraphSelected()) {
+				} else if(menuPanel.isRdbtnGraphSelectedJDT()) {
 					GraphController graph =  new GraphController();
 					try {
-						graph.GraphPanel(my_path);
+						graph.GraphPanel(my_path, "EclipseJDT");
 					} catch (FileNotFoundException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -129,10 +129,36 @@ public class SelectProjectController  {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-				}else if(menuPanel.isRdbtnMetricSelected()) {
+				}else if(menuPanel.isRdbtnMetricSelectedJDT()) {
 					try {
-						CouplingAnalyze couplingGraph = new CouplingAnalyze(my_path);
-						MetricPanel metricPanel =  new MetricPanel(frame, couplingGraph.getCouplingGraphe());
+					
+						MetricPanel metricPanel =  new MetricPanel(frame, my_path, "EclipseJDT");
+						metricPanel.getBtnTerminer().addActionListener(buttonQuitListener);
+						cardPanel.add(metricPanel, "metricPanel");
+						cardLayout.show(cardPanel, "metricPanel");
+						
+					} catch (NullPointerException | IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
+				}else if(menuPanel.isRdbtnGraphSelectedSpoon()) {
+					GraphController graph =  new GraphController();
+					try {
+						graph.GraphPanel(my_path, "Spoon");
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+				
+				else if(menuPanel.isRdbtnMetricSelectedSpoon()) {
+					try {
+						
+						MetricPanel metricPanel =  new MetricPanel(frame, my_path, "Spoon");
 						metricPanel.getBtnTerminer().addActionListener(buttonQuitListener);
 						cardPanel.add(metricPanel, "metricPanel");
 						cardLayout.show(cardPanel, "metricPanel");

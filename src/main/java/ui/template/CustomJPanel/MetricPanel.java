@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
 import javax.swing.JButton;
@@ -14,8 +15,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import model.couplingGraph;
-import processor.CouplingAnalyze;
+import model.CouplingGraph;
+import processor.CouplingAnalyzeJDT;
+import processor.SpoonCouplingAnalyzer;
 import ui.controller.LabelMap;
 import ui.controller.SelectProjectController;
 import ui.paramater.MyViewParameter;
@@ -25,7 +27,7 @@ import ui.template.FolderChooserTemplate;
 public class MetricPanel extends JPanel{
 
 	private MyViewParameter myParam = new MyViewParameter();
-	private couplingGraph couplingGraph;
+	private static CouplingGraph couplingGraphInterne;
 	private JButton btnTerminer;
 	private JButton btnRechercher;
 	private JTextField textField1;
@@ -33,11 +35,23 @@ public class MetricPanel extends JPanel{
 	private JLabel resultLabel = new JLabel("");
 	private LabelMap labels = new LabelMap();
 
-	public MetricPanel(JFrame frame, couplingGraph couplingGraph) {
-
+	public MetricPanel(JFrame frame, String mypath, String typeAnalyse) throws NullPointerException, IOException {
+		if(typeAnalyse.equals("EclipseJDT")){
+			CouplingAnalyzeJDT couplingGraph = new CouplingAnalyzeJDT(mypath);
+			couplingGraphInterne = new CouplingGraph();
+			this.setCouplingGraph(couplingGraph.getCouplingGraphe());
+		}
+		if(typeAnalyse.equals("Spoon")){
+			SpoonCouplingAnalyzer spoonGraph = new SpoonCouplingAnalyzer(mypath);
+			couplingGraphInterne = new CouplingGraph();
+			this.setCouplingGraph(spoonGraph.getCouplingGraph());
+		}
+		
+		
+		System.out.println(checkMetricCouplage("hotel.rest.server.Application", "hotel.rest.server.repository.AgencePartenaireRepository"));
 		frame.getContentPane().add(this, BorderLayout.CENTER);
 		this.setLayout(null);
-		this.setCouplingGraph(couplingGraph);
+
 
 		JLabel titleLabel = new JLabel( "--> Resultats :");
 		titleLabel.setBounds(myParam.getxBouton(), (int) Math.round((myParam.getyBouton()/2)), myParam.getLargeurBouton(), myParam.getHauteurBouton());
@@ -48,6 +62,7 @@ public class MetricPanel extends JPanel{
 		btnTerminer.setBounds(myParam.getLargeurFenetre()-myParam.getxBouton()-myParam.getLargeurBouton(), (int) Math.round((myParam.getyBouton()/2)), myParam.getLargeurBouton(), myParam.getHauteurBouton());
 		btnTerminer.setFont(MyViewParameter.getMyFontStyle());
 		btnTerminer.setBackground(Color.lightGray);
+		btnTerminer.addActionListener(buttonTerminerListener);
 		this.add(btnTerminer);
 
 		textField1 = new JTextField();
@@ -66,7 +81,7 @@ public class MetricPanel extends JPanel{
 		btnRechercher.setFont(MyViewParameter.getMyFontStyle());
 		btnRechercher.setBackground(Color.lightGray);
 		this.add(btnRechercher);
-
+		
 		btnRechercher.addActionListener(btnRechercherListener);
 
 		resultLabel.setBounds(myParam.getxBouton(), (int) Math.round((myParam.getyBouton() * 5)), myParam.getLargeurBouton()*3, myParam.getHauteurBouton());
@@ -75,13 +90,13 @@ public class MetricPanel extends JPanel{
 	}
 
 
-	public couplingGraph getCouplingGraph() {
-		return couplingGraph;
+	public CouplingGraph getCouplingGraph() {
+		return couplingGraphInterne;
 	}
 
 
-	public void setCouplingGraph(couplingGraph couplingGraph) {
-		this.couplingGraph = couplingGraph;
+	public void setCouplingGraph(CouplingGraph couplingGraph) {
+		this.couplingGraphInterne = couplingGraph;
 	}
 
 
@@ -96,14 +111,14 @@ public class MetricPanel extends JPanel{
 
 	private String checkMetricCouplage(String classeNameA, String classeNameB) {
 		String resultText = null;
-		if (!couplingGraph.isExistingVertex(classeNameA) && !couplingGraph.isExistingVertex(classeNameB)) {
+		if (!couplingGraphInterne.isExistingVertex(classeNameA) && !couplingGraphInterne.isExistingVertex(classeNameB)) {
 			resultText = "Les classes : " + classeNameA + " et " + classeNameB + " n'existe pas dans le projet";
-		}else if (!couplingGraph.isExistingVertex(classeNameA)){
+		}else if (!couplingGraphInterne.isExistingVertex(classeNameA)){
 			resultText = "La classe : " + classeNameA +  " n'existe pas dans le projet";
-		}else if (!couplingGraph.isExistingVertex(classeNameB)){
+		}else if (!couplingGraphInterne.isExistingVertex(classeNameB)){
 			resultText = "La classe : " + classeNameB +  " n'existe pas dans le projet";
 		}else {
-			float metricCouplage = couplingGraph.getMetricCouplageByName(classeNameA, classeNameB);
+			float metricCouplage = couplingGraphInterne.getMetricCouplageByName(classeNameA, classeNameB);
 			metricCouplage = (float) (Math.round(metricCouplage * 100.0) / 100.0);
 			if(metricCouplage == -1.00) {
 				resultText = "Il n'existe pas d'appel entre les deux classes"; 
@@ -131,5 +146,21 @@ public class MetricPanel extends JPanel{
 		}
 	};
 
+	public ActionListener buttonTerminerListener = new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+	        // Réinitialiser les champs de texte
+	        textField1.setText("");
+	        textField2.setText("");
+
+	        // Réinitialiser le label de résultat
+	        resultLabel.setText("");
+	        couplingGraphInterne.getListEdge().clear();
+	        // Ajoutez ici d'autres réinitialisations si nécessaire
+	        // ...
+
+	        // Vous pouvez également ajouter du code ici si vous souhaitez effectuer
+	        // d'autres actions, comme retourner à un autre panel, etc.
+	    }
+	};
 
 }

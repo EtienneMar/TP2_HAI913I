@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.SwingConstants;
@@ -17,16 +18,29 @@ import com.mxgraph.view.mxGraph;
 import model.Edge;
 import model.Vertex;
 import parsers.EclipseJDTParser;
-import processor.CouplingAnalyze;
+import processor.CouplingAnalyzeJDT;
+import processor.SpoonCouplingAnalyzer;
 
 public class GraphController {
 
 	public static EclipseJDTParser parserEclipse;
-	private static CouplingAnalyze couplingGraphe; 
+	private static CouplingAnalyzeJDT couplingGraphe; 
+	private static SpoonCouplingAnalyzer couplingGrapheSpoon; 
+	private List<Vertex> listVertex = new ArrayList<>();
+	private List<Edge> listEdge = new ArrayList<>();
 
-	public void GraphPanel(String path) throws IOException {
-
-		couplingGraphe = new CouplingAnalyze(path);
+	public void GraphPanel(String path, String typeParser) throws IOException {
+		
+		if(typeParser.equals("EclipseJDT")) {
+			couplingGraphe = new CouplingAnalyzeJDT(path);
+			listVertex.addAll(couplingGraphe.getCouplingGraphe().getListVertex());		
+			listEdge.addAll(couplingGraphe.getCouplingGraphe().getListEdge());
+		}
+		if(typeParser.equals("Spoon")) {
+			couplingGrapheSpoon = new SpoonCouplingAnalyzer(path);
+			listVertex.addAll(couplingGrapheSpoon.getCouplingGraph().getListVertex());		
+			listEdge.addAll(couplingGrapheSpoon.getCouplingGraph().getListEdge());
+		}
 
 		SwingUtilities.invokeLater(() -> {
 			JFrame frame = new JFrame("AST Graph Viewer");
@@ -45,7 +59,7 @@ public class GraphController {
 
 			try {
 
-				for(Vertex vertex : couplingGraphe.getCouplingGraphe().getListVertex()) {
+				for(Vertex vertex : listVertex) {
 					Object vertexOriginGraph = graph.insertVertex(parent, vertex.getName(), vertex.getName(), 20, 20, 80, 30);
 					mxRectangle dimensions = graph.getPreferredSizeForCell(vertexOriginGraph);
 
@@ -57,7 +71,7 @@ public class GraphController {
 				ArrayList<Object> cellList = new ArrayList<>(Arrays.asList(graph.getChildCells(parent)));
 				cellList.stream().filter(cell -> graph.getModel().isVertex(cell));
 
-				for (Edge edge : couplingGraphe.getCouplingGraphe().getListEdge()) {
+				for (Edge edge : listEdge) {
 					String vertexNameA = edge.getVertexOrigin().getName();
 					String vertexNameB = edge.getVertexFinal().getName();
 					Object vertexA = null;
