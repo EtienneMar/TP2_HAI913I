@@ -81,6 +81,7 @@ public class SpoonCouplingAnalyzer {
 
 			}
 
+			// Filter method calls within this class
 			List<CtInvocation<?>> methodInvocations = ctClass.getElements(new TypeFilter<>(CtInvocation.class));
 			for(CtInvocation<?> methodInvocation  : methodInvocations) {
 				CtExecutableReference<?> executable = methodInvocation.getExecutable();
@@ -89,6 +90,8 @@ public class SpoonCouplingAnalyzer {
 				if(declaringTypeRef == null) {
 					declaringTypeRef = methodInvocation.getExecutable().getType();
 				}
+				
+				// Filter method without a declaringTypeRef like save in the implementation of CRUD
 				if(declaringTypeRef == null) {
 					if (methodInvocation.getTarget() instanceof CtVariableAccess) {
 				        CtVariableAccess<?> variableAccess = (CtVariableAccess<?>) methodInvocation.getTarget();

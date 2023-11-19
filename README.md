@@ -27,3 +27,5 @@ Il y a dans l'application 4 boutons correspondant :
 
 Attention la fermeture du graphe entraine la fermeture de l'UI.
 
+Lien du dépôt GIT : https://github.com/EtienneMar/TP2_HAI913I/tree/main
+
